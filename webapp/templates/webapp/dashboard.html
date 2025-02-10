@@ -1,0 +1,92 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+
+    <h5> Welcome, {{user}}! 👋 </h5>
+
+    <hr>
+
+    
+
+        Create a new record &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
+
+    </a>
+
+    <hr> 
+
+    <table class="table table-hover table-bordered">
+
+        <thead class="table-light">
+
+            <tr>
+
+                <th scope="col"> ID </th>
+                <th scope="col"> Student </th>
+                <th scope="col"> Parent Email </th>
+                <th scope="col"> Parent Phone </th>
+                <th scope="col"> From </th>
+                <th scope="col"> City </th>
+                <th scope="col"> Index.no </th>
+                <th scope="col"> Grade </th>
+
+                <th scope="col"> Date Joined </th>
+
+                
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% if records %}
+
+            {% for record in records %}
+
+            <tr>
+
+                <td> {{record.id}} </td>
+
+                <td> {{record.first_name}}  {{record.last_name}} </td>
+
+                <td> {{record.email}} </td>
+
+                <td> {{record.phone}} </td>
+                <td> {{record.address}} </td>
+                <td> {{record.city}} </td>
+                <td> {{record.province}} </td>
+                <td> {{record.country}} </td>
+
+                <td> {{record.creation_date}} </td>
+
+                
+
+            </tr>
+
+            {% endfor %}
+        
+        {% endif %}
+
+
+        </tbody>
+
+
+    </table>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
