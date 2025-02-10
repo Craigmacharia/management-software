@@ -3,29 +3,28 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
 <body>
-    <div class="container bg-dark shadow-md p-5 form-layout">
-
-            <h3>Create your account</h3>
-            <h5>Start managing your clients today</h5>
-            <hr>
-            <br>
-
-            <form method="POST" autocomplete="off">
-                {% csrf_token %}
-                {{ form|crispy }}
-                <br>
-                <button type="submit" class="btn btn-primary w-100 btn-block p-2">Create an account</button>
-            </form>
-
-            <br>
-            <div class="text-center">
-                <p>Already have an account?</p>
-                <a href="{% url 'my-login' %}">Login</a>
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="card shadow-lg p-4 shadow-md p-3 rounded" style="max-width: 400px; width: 100%;>
+                <h3 class="text-center text-light">Register</h3>
+                <p class="text-center text-light">Anza kuhifadhi data ya kampuni!</p>
+                <hr>
+                <form method="POST" autocomplete="off">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary w-100 mt-3 rounded shadow">
+                        Create an Account
+                    </button>
+                </form>
+                <div class="text-center mt-4">
+                    <p>Already have an account?</p>
+                    <a href="{% url 'my-login' %}" class="btn btn-link text-primary">
+                        Login
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </body>
-
 {% endblock %}
