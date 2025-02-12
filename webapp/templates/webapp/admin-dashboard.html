@@ -1,0 +1,59 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<hr>
+<h5>Karibu tena, {{ user }}! 👋</h5>
+<hr>
+{% if request.path == '/admin-dashboard/' %}
+<a href="{% url 'create-record' %}" class="btn btn-primary">Create Record</a>
+{% endif %}
+<hr>
+<a href="{% url 'create-assignment' %}" class="btn btn-primary">Create Assignment</a>
+<hr>
+<a href="{% url 'assignments' %}" class="btn btn-primary">Manage Assignments</a>
+
+<hr>
+
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th scope="col" class="text-end">ID</th>
+                <th scope="col">Student</th>
+                <th scope="col">Parent Email</th>
+                <th scope="col">Parent Phone</th>
+                <th scope="col">Address</th>
+                <th scope="col">City</th>
+                <th scope="col">ADM.NO</th>
+                <th scope="col">GRADE</th>
+                <th scope="col">Date Joined</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td class="text-end">{{ record.id }}</td>
+                <td>{{ record.first_name }} {{ record.last_name }}</td>
+                <td>{{ record.email }}</td>
+                <td>{{ record.phone }}</td>
+                <td>{{ record.address }}</td>
+                <td>{{ record.city }}</td>
+                <td>{{ record.province }}</td>
+                <td>{{ record.country }}</td>
+                <td>{{ record.creation_date }}</td>
+                <td>
+                    <a href="{% url 'update-record' record.id %}" class="btn btn-warning btn-sm">Update</a>
+                    <br>
+                    <br>
+                    <a href="{% url 'delete-record' record.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    </div>
+{% endblock %}

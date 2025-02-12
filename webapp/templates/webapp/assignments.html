@@ -1,0 +1,29 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h3> Murima School Assignments</h3>
+
+    <form method="GET" action="{% url 'assignments' %}" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search assignments..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    
+
+    <ul class="list-group">
+        {% for assignment in assignments %}
+            <li class="list-group-item">
+                <strong>{{ assignment.title }}</strong><br>
+                <small>Due: {{ assignment.due_date }}</small>
+                <p>{{ assignment.description }}</p>
+                
+                {% if assignment.attachment %}
+                    <a href="{{ assignment.attachment.url }}" class="btn btn-info" download>📎 Download Assignments</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

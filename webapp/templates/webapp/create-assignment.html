@@ -1,23 +1,22 @@
 {% extends 'webapp/base.html' %}
-
 {% load crispy_forms_tags %}
 
 {% block content %}
 <body class="bg-dark text-light">
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
-    <h3>Update Record</h3>
-    <hr>
+    <h3>Create Assignment</h3>
     <br>
-
-    <form method="POST" autocomplete="off">
+    <form method="POST" enctype="multipart/form-data" autocomplete="off">
         {% csrf_token %}
         {{ form|crispy }}
         <br>
-        <button type="submit" class="btn btn-primary">Update Record</button>
+        <br>
+        <button type="submit" class="btn btn-success">Post Assignment</button>
         <br>
         <br>
-        <a href="{% url 'record' record.id %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'assignments' %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}
+

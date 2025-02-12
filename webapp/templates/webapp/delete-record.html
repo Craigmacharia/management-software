@@ -1,0 +1,21 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<body class="bg-dark text-light">
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+    <h3>Delete Record</h3>
+
+    <p>Are you sure you want to delete the record for <strong>{{ record.first_name }} {{ record.last_name }}</strong>?</p>
+
+    <form method="POST" autocomplete="off">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            <i class="fa fa-trash" aria-hidden="true"></i> Delete
+        </button>
+        <a href="{% url 'admin-dashboard' %}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i> Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

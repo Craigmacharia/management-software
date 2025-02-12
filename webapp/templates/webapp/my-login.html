@@ -3,24 +3,38 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
 <body class="bg-dark text-light">
-
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
             <h3 class="text-center text-light">Login to Your Account</h3>
             <hr class="bg-light">
+            
+            <!-- Display error messages -->
+            {% if messages %}
+                <div class="alert alert-danger">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
             <form method="POST" autocomplete="off">
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
                 {% csrf_token %}
+                
+                <!-- Crispy Form -->
                 {{ form|crispy }}
-                <button type="submit" class="btn btn-primary w-100 btn-block p-2 mt-3">Login</button>
+                
+                <!-- Login Button -->
+                <button type="submit" class="btn btn-primary w-100 btn-block p-2 mt-3">
+                    <i class="fa fa-sign-in"></i> Login
+                </button>
             </form>
+            
             <div class="text-center mt-4">
                 <p>Don't have an account? <a href="{% url 'register' %}" class="text-decoration-none text-primary">Register</a></p>
             </div>
         </div>
     </div>
-
 </body>
-
 {% endblock %}
