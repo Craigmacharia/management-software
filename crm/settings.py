@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-4onqtb7lt(8(iiupyy*v*hu-z&(*7)58@7gy)53a5%o($*!qut
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "5efc-41-80-113-54.ngrok-free.app",
+    "localhost", 
+    "127.0.0.1",
+]
+
 
 
 # Application definition
@@ -59,7 +64,7 @@ ROOT_URLCONF = 'crm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "webapp templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,3 +140,35 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+
+import os
+from decouple import Config, Csv
+
+# Load environment variables
+config = Config(os.path.join(BASE_DIR, ".env"))
+
+# MPESA API Credentials
+MPESA_ENV = config("MPESA_ENV", default="sandbox")
+MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY", default="missing_key")
+MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="missing_secret")
+MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="600000")
+MPESA_PASSKEY = config("MPESA_PASSKEY", default="missing_passkey")
+MPESA_CALLBACK_URL = config("MPESA_CALLBACK_URL", default="missing_callback_url")
+
+
+
+from decouple import config
+
+MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY")
+MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET")
+
+
+
+CSRF_TRUSTED_ORIGINS = ['https://5efc-41-80-113-54.ngrok-free.app']
+
+
+
+

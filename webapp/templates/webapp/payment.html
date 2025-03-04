@@ -1,0 +1,21 @@
+<form id="mpesaPaymentForm">
+    <input type="hidden" name="amount" value="100">  <!-- Amount -->
+    <input type="text" name="phone_number" placeholder="Enter MPESA Number" required>
+    <button type="submit">Pay Now</button>
+</form>
+
+<script>
+document.getElementById("mpesaPaymentForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    let formData = new FormData(this);
+    
+    fetch("/mpesa/pay/", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => alert("Payment request sent! Check your phone."))
+    .catch(error => console.error("Error:", error));
+});
+</script>

@@ -49,6 +49,10 @@
                     <br>
                     <br>
                     <a href="{% url 'delete-record' record.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    <br>
+                    <br>
+                    <a href="{% url 'record' record.id %}" class="btn btn-danger btn-sm">View</a>
+
                 </td>
             </tr>
             {% endfor %}

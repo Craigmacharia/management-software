@@ -1,0 +1,16 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Answer: {{ question.title }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="answer" class="form-control" rows="3" required></textarea>
+        <button type="submit" class="btn btn-success mt-2">Submit Answer</button>
+    </form>
+    <br>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back</a>
+</div>
+{% endblock %}
+
+

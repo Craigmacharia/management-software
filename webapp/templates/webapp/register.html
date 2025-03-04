@@ -3,11 +3,14 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+
+
 <body>
-    <body class="bg-dark text-light">
+    <body class="bg-dark text-darker">
         <div class="container d-flex justify-content-center align-items-center min-vh-100">
             <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
                 <h3 class="text-center text-light">Login to Your Account</h3>
+                <p class="text-center text-light">Don't space on the username</p>
                 <hr class="bg-light">
                 <form method="POST" autocomplete="off">
                     {% csrf_token %}

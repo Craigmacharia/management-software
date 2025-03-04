@@ -1,495 +1,283 @@
-
-
-from django.shortcuts import render, redirect,get_object_or_404
-from django.shortcuts import render, redirect
-
-from .forms import CreateUserForm, LoginForm, CreateRecordForm, UpdateRecordForm
-
-from django.contrib.auth.models import auth
-
-from django.contrib.auth import authenticate
-
-from django.contrib.auth.decorators import login_required
-
-from .models import Record
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
-from .models import Admin
-from .forms import AdminLoginForm
+from .models import Record, Assignment, Question, Answer, Admin
+from .forms import (
+    CreateUserForm, LoginForm, CreateRecordForm, UpdateRecordForm,
+    AssignmentForm, QuestionForm, AnswerForm, AdminLoginForm
+)
 
-from .models import Admin, Record
+# --------------------------------
+# User Authentication Views
+# --------------------------------
 
-from django.shortcuts import redirect
+def home(request):
+    return render(request, 'webapp/index.html')
 
-from .models import Record
-
-
-from django.contrib.auth import authenticate, login
-from .forms import LoginForm
-
-from django.contrib.auth.decorators import user_passes_test
-
-from .forms import CreateRecordForm
-
-from .models import Assignment
-
-from .forms import AssignmentForm
-
-
-
+def register(request):
+    form = CreateUserForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Account created successfully!")
+        return redirect("my-login")
+    return render(request, 'webapp/register.html', {'form': form})
 
 def my_login(request):
-    if request.method == "POST":
-        form = LoginForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-                next_url = request.GET.get('next', 'dashboard')  # Get the 'next' parameter or default to 'dashboard'
-                return redirect(next_url)  # Redirect to the 'next' URL
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid form data.")
-    else:
-        form = LoginForm()
-
+    form = LoginForm(request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = authenticate(
+            request, 
+            username=form.cleaned_data['username'], 
+            password=form.cleaned_data['password']
+        )
+        if user:
+            login(request, user)
+            return redirect(request.GET.get('next', 'dashboard'))
+        messages.error(request, "Invalid username or password.")
     return render(request, 'webapp/my-login.html', {'form': form})
 
-
-#homepage
-
-def home(request):
-
-    return render(request, 'webapp/index.html')
-
-
-#register
-
-def register(request):
-
-    form = CreateUserForm()
-
-    if request.method == "POST":
-
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-
-         form.save()
-
-        return redirect('my-login')
-
-
-    context = {'form':form}
-
-    return render(request, 'webapp/register.html', context=context)
-
-#login
-
-def my_login(request):
-   
-   form = LoginForm()
-
-   if request.method == "POST":
-      
-      form = LoginForm(request, data=request.POST)
-
-      if form.is_valid():
-         
-         username = request.POST.get('username')
-         password = request.POST.get('password')
-
-         user = authenticate(request, username=username, password=password)
-
-         if user is not None:
-            
-            auth.login(request, user)
-
-            return redirect("dashboard")
-
-   context = {'form':form}
-
-   return render(request, 'webapp/my-login.html', context=context)
-
-#logout
 def user_logout(request):
-   
-   auth.logout(request)
+    logout(request)
+    return redirect("")
 
-   return redirect("")
-
-#dashboard
-
-@login_required(login_url='my-login')
-
-def dashboard(request):
-       
-       my_records = Record.objects.all()
-
-       context = {'records': my_records}
-
-   
-       return render(request, 'webapp/dashboard.html', context=context)
-
-from django.shortcuts import render, redirect
-from .forms import CreateUserForm, LoginForm, CreateRecordForm, UpdateRecordForm
-
-from django.contrib.auth.models import auth
-from django.contrib.auth import authenticate
-
-from django.contrib.auth.decorators import login_required
-
-from .models import Record
-
-from django.contrib import messages
-
-
-
-
-# - Homepage 
-
-def home(request):
-
-    return render(request, 'webapp/index.html')
-
-
-# - Register a user
-
-def register(request):
-
-    form = CreateUserForm()
-
-    if request.method == "POST":
-
-        form = CreateUserForm(request.POST)
-
-        if form.is_valid():
-
-            form.save()
-
-            messages.success(request, "Account created successfully!")
-
-            return redirect("my-login")
-
-    context = {'form':form}
-
-    return render(request, 'webapp/register.html', context=context)
-
-
-# - Login a user
-
-def my_login(request):
-
-    form = LoginForm()
-
-    if request.method == "POST":
-
-        form = LoginForm(request, data=request.POST)
-
-        if form.is_valid():
-
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-
-                auth.login(request, user)
-
-                return redirect("dashboard")
-
-    context = {'form':form}
-
-    return render(request, 'webapp/my-login.html', context=context)
-
-
-# - Dashboard
+# --------------------------------
+# Dashboard & Records Management
+# --------------------------------
 
 @login_required(login_url='my-login')
 def dashboard(request):
-
-    my_records = Record.objects.all()
-
-    context = {'records': my_records}
-
-    return render(request, 'webapp/dashboard.html', context=context)
-
-
-# - Create a record 
+    records = Record.objects.all()
+    return render(request, 'webapp/dashboard.html', {'records': records})
 
 @login_required(login_url='my-login')
 def create_record(request):
-
-    form = CreateRecordForm()
-
-    if request.method == "POST":
-
-        form = CreateRecordForm(request.POST)
-
-        if form.is_valid():
-
-            form.save()
-
-            messages.success(request, "Your record was created!")
-
-            return redirect("dashboard")
-        
-
-   # - Update a record 
-
-@login_required(login_url='my-login')
-def update_record(request, pk):
-
-    record = Record.objects.get(id=pk)
-
-    form = UpdateRecordForm(instance=record)
-
-    if request.method == 'POST':
-
-        form = UpdateRecordForm(request.POST, instance=record)
-
-        if form.is_valid():
-
-            form.save()
-
-            messages.success(request, "Your record was updated!")
-
-            return redirect("dashboard")
-        
-    context = {'form':form}
-
-    return render(request, 'webapp/update-record.html', context=context)
-
-# - Read / View a singular record
-
-@login_required(login_url='my-login')
-def singular_record(request, pk):
-
-    all_records = Record.objects.get(id=pk)
-
-    context = {'record':all_records}
-
-    return render(request, 'webapp/view-record.html', context=context)
-
-# - Delete a record
-
-@login_required(login_url='my-login')
-def delete_record(request, pk):
-
-    record = Record.objects.get(id=pk)
-
-    record.delete()
-
-    messages.success(request, "Your record was deleted!")
-
-    return redirect("dashboard")
-
-
-#contact
-
-def contact(request):
-
-    return render(request, 'webapp/contact.html')
-
-
-#orientation
-
-def orientation(request):
-
-    return render(request, 'webapp/orientation.html')
-
-#admin only
-
-def admin_login(request):
-    if request.method == "POST":
-        form = AdminLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-
-            try:
-                admin = Admin.objects.get(username=username)
-                if admin.password == password:  # Replace with password hashing in production
-                    request.session['admin_id'] = admin.id  # Store admin ID in session
-                    return redirect('admin-dashboard')
-                else:
-                    messages.error(request, "Invalid password.")
-            except Admin.DoesNotExist:
-                messages.error(request, "Admin does not exist.")
-        else:
-            messages.error(request, "Invalid form data.")
-    else:
-        form = AdminLoginForm()
-
-    return render(request, 'webapp/admin-login.html', {'form': form})
-
-
-
-def admin_dashboard(request):
-    if 'admin_id' not in request.session:  # Check if admin is logged in
-        return redirect('admin-login')
-
-    records = Record.objects.all()  # Fetch all records
-    return render(request, 'webapp/admin-dashboard.html', {'records': records})
-
-
-
-
-
-
-# Custom function to check if the user is the special admin
-
-def is_special_admin(user):
-    special_admins = ['CraigMacharia', 'craig']
-    return user.is_authenticated and user.username in special_admins
-
-
-
-# Apply the decorator to your views
-@user_passes_test(is_special_admin)
-def create_record(request):
-    if request.method == "POST":
-        form = CreateRecordForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Record created successfully!")
-            return redirect('admin-dashboard')
-    else:
-        form = CreateRecordForm()
+    form = CreateRecordForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Record created successfully!")
+        return redirect("dashboard")
     return render(request, 'webapp/create-record.html', {'form': form})
 
-@user_passes_test(is_special_admin)
+@login_required(login_url='my-login')
 def update_record(request, pk):
     record = get_object_or_404(Record, id=pk)
-    if request.method == "POST":
-        form = CreateRecordForm(request.POST, instance=record)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Record updated successfully!")
-            return redirect('admin-dashboard')
-    else:
-        form = CreateRecordForm(instance=record)
-    return render(request, 'webapp/update-record.html', {'form': form})
+    form = UpdateRecordForm(request.POST or None, instance=record)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Record updated successfully!")
+        return redirect("dashboard")
+    return render(request, 'webapp/update-record.html', {'form': form, 'record': record})
 
-@user_passes_test(is_special_admin)
+@login_required(login_url='my-login')
 def delete_record(request, pk):
     record = get_object_or_404(Record, id=pk)
     if request.method == "POST":
         record.delete()
         messages.success(request, "Record deleted successfully!")
-        return redirect('admin-dashboard')
+        return redirect("dashboard")
     return render(request, 'webapp/delete-record.html', {'record': record})
 
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import user_passes_test, login_required
-from django.contrib import messages
-from .models import Assignment
-from .forms import AssignmentForm
-
-# Admin Check
-def is_special_admin(user):
-    return user.is_authenticated and user.is_superuser
-
 @login_required(login_url='my-login')
-@user_passes_test(is_special_admin)
-def create_assignment(request):
-    if request.method == 'POST':
-        form = AssignmentForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Assignment created successfully!")
-            return redirect('admin-dashboard')  # Ensure 'admin-dashboard' is correctly named in urls.py
-    else:
-        form = AssignmentForm()
-    return render(request, 'webapp/create-assignment.html', {'form': form})
+def singular_record(request, pk):
+    record = get_object_or_404(Record, id=pk)
+    return render(request, 'webapp/view-record.html', {'record': record})
 
+# --------------------------------
+# Assignments Management
+# --------------------------------
 
-# View Assignments (For Students & Admin)
 @login_required(login_url='my-login')
 def assignments_list(request):
-    assignments = Assignment.objects.all().order_by('-created_at')
+    query = request.GET.get('q', '')
+    assignments = Assignment.objects.filter(title__icontains=query) if query else Assignment.objects.all()
     return render(request, 'webapp/assignments.html', {'assignments': assignments})
-
-from django.shortcuts import render
-from .models import Assignment  # Import the Assignment model
-
-def assignment_list(request):
-    assignments = Assignment.objects.all()
-    return render(request, 'webapp/assignments.html', {'assignments': assignments})
-
-
 
 @login_required(login_url='my-login')
+@user_passes_test(lambda u: u.is_superuser)  # Only admin can create assignments
 def create_assignment(request):
-    if request.method == 'POST':
-        form = AssignmentForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Assignment created successfully!")
-            return redirect('admin-dashboard')
-    else:
-        form = AssignmentForm()
+    form = AssignmentForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Assignment created successfully!")
+        return redirect('admin-dashboard')
     return render(request, 'webapp/create-assignment.html', {'form': form})
 
+# --------------------------------
+# Questions & Answers
+# --------------------------------
+
+@login_required(login_url='my-login')
+def question_list(request):
+    questions = Question.objects.all().order_by('-created_at')
+    return render(request, 'questions/question_list.html', {'questions': questions})
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Question, Answer
+from .forms import AnswerForm
+
+@login_required(login_url='my-login')
+def question_detail(request, pk):
+    question = get_object_or_404(Question, id=pk)  # ✅ Use pk instead of question_id
+    answers = question.answers.all()  # ✅ Fetch related answers
+
+    form = AnswerForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        answer = form.save(commit=False)
+        answer.user = request.user
+        answer.question = question
+        answer.save()
+        return redirect('question_detail', pk=question.id)  # ✅ Use pk=question.id
+
+    return render(request, 'questions/question_detail.html', {
+        'question': question,
+        'answers': answers,
+        'form': form
+    })
+
+
+
 
 
 @login_required(login_url='my-login')
-def update_record(request, pk):
-    record = get_object_or_404(Record, id=pk)  # Ensure record exists
-    form = UpdateRecordForm(instance=record)
-
-    if request.method == "POST":
-        form = UpdateRecordForm(request.POST, instance=record)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your record was updated!")
-            return redirect("record", pk=record.pk)  # Ensure redirection to singular_record
-
-    context = {'form': form, 'record': record}  # Ensure record is passed
-    return render(request, 'webapp/update-record.html', context)
+def ask_question(request):
+    form = QuestionForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        question = form.save(commit=False)
+        question.user = request.user
+        question.save()
+        return redirect('question_list')
+    return render(request, 'questions/ask_question.html', {'form': form})
 
 
 
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Assignment
-
-@login_required  # Ensures only logged-in users can access
-def assignments_view(request):
-    query = request.GET.get('q', '')
-    assignments = Assignment.objects.all()
-
-    if query:
-        assignments = assignments.filter(title__icontains=query)
-
-    return render(request, 'webapp/assignments.html', {'assignments': assignments})
-
-
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Assignment
 
 @login_required
-def assignments_view(request):
-    query = request.GET.get('q', '')  # Get the search query from URL
-    assignments = Assignment.objects.all()
+def answer_question(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+    
+    if request.method == "POST":
+        Answer.objects.create(
+            question=question, 
+            user=request.user, 
+            body=request.POST.get("answer", "")
+        )
+        return redirect('question_detail', pk=pk)
+    
+    return render(request, 'questions/answer_question.html', {'question': question})  # ✅ Ensure this path is correct
 
-    if query:
-        assignments = assignments.filter(title__icontains=query)  # Filter assignments
-
-    return render(request, 'webapp/assignments.html', {'assignments': assignments, 'query': query})
 
 
 
+# --------------------------------
+# Admin Views
+# --------------------------------
 
 
+
+\
+def admin_login(request):
+    form = AdminLoginForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        username, password = form.cleaned_data['username'], form.cleaned_data['password']
+        try:
+            admin = Admin.objects.get(username=username)
+            if admin.password == password:  # ⚠️ Use password hashing in production
+                request.session['admin_id'] = admin.id
+                return redirect('admin-dashboard')
+            messages.error(request, "Invalid password.")
+        except Admin.DoesNotExist:
+            messages.error(request, "Admin does not exist.")
+    return render(request, 'webapp/admin-login.html', {'form': form})
+
+def admin_dashboard(request):
+    if 'admin_id' not in request.session:
+        return redirect('admin-login')
+    records = Record.objects.all()
+    return render(request, 'webapp/admin-dashboard.html', {'records': records})
+
+# Special Admin-Only Views
+
+def is_special_admin(user):
+    return user.is_authenticated and user.username in ['CraigMacharia', 'craig']
+
+@user_passes_test(is_special_admin)
+def create_record_admin(request):
+    return create_record(request)
+
+@user_passes_test(is_special_admin)
+def update_record_admin(request, pk):
+    return update_record(request, pk)
+
+@user_passes_test(is_special_admin)
+def delete_record_admin(request, pk):
+    return delete_record(request, pk)
+
+# --------------------------------
+# Static Pages
+# --------------------------------
+
+def contact(request):
+    return render(request, 'webapp/contact.html')
+
+def orientation(request):
+    return render(request, 'webapp/orientation.html')
+
+
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .mpesa_utils import lipa_na_mpesa
+
+@csrf_exempt
+def initiate_payment(request):
+    """Handles MPESA STK Push when 'Pay Now' button is clicked"""
+    if request.method == "POST":
+        phone_number = request.POST.get("phone_number")
+        amount = request.POST.get("amount")
+
+        if not phone_number or not amount:
+            return JsonResponse({"error": "Phone number and amount are required"}, status=400)
+
+        response = lipa_na_mpesa(phone_number, amount)
+        return JsonResponse(response)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+
+
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, "webapp/index.html")  # Make sure 'home.html' exists in templates
+
+
+
+
+from django.http import JsonResponse
+import json
+
+def mpesa_callback(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            print("MPESA CALLBACK DATA:", data)  # Debugging
+            return JsonResponse({"message": "Callback received"}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 

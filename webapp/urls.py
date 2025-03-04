@@ -2,10 +2,16 @@
 from django.urls import path
 from . import views
 
+from django.contrib.auth import views as auth_views
+
 from django.conf import settings
 from django.conf.urls.static import static
 
 from .views import create_assignment, assignments_list
+
+from .views import question_list, question_detail, ask_question
+
+from .views import mpesa_callback
 
 
 urlpatterns = [
@@ -23,6 +29,13 @@ path('contact', views.contact, name="contact"),
 path('orientation', views.orientation, name="orientation"),
 
 path('assignments/', views.assignments_list, name='assignments'),
+
+path('questions/', question_list, name='question_list'),
+
+path('questions/<int:pk>/', question_detail, name='question_detail'),
+
+path('questions/<int:pk>/answer/', views.answer_question, name='answer_question'),
+
 
 
 #crud
@@ -47,6 +60,18 @@ path('create-assignment/', views.create_assignment, name='create-assignment'),
 
 path('assignments/', views.assignments_list, name='assignments'),
 
+
+path('questions/', question_list, name='question_list'),
+
+path('questions/<int:question_id>/', question_detail, name='question_detail'),
+
+path('questions/ask/', ask_question, name='ask_question'),
+
+path("mpesa/pay/", views.initiate_payment, name="mpesa_pay"),
+
+path("mpesa/callback/", mpesa_callback, name="mpesa_callback"),
+
+
 ]
 
 if settings.DEBUG:
@@ -70,6 +95,17 @@ def assignments_list(request):
         assignments = Assignment.objects.all()  # Show all assignments if no search
 
     return render(request, 'assignments_list.html', {'assignments': assignments})
+
+
+
+
+
+
+
+
+
+
+
 
 
 

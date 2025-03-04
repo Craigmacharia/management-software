@@ -21,9 +21,15 @@
                 
                 {% if assignment.attachment %}
                     <a href="{{ assignment.attachment.url }}" class="btn btn-info" download>📎 Download Assignments</a>
+                    <hr>
+
                 {% endif %}
             </li>
         {% endfor %}
     </ul>
+
+<br>
+<a href="{% url 'dashboard' %}" class="btn btn-primary">Back</a>
+<hr>
 </div>
 {% endblock %}

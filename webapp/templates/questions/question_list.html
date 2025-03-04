@@ -1,0 +1,27 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Students Questions</h2>
+    <!-- List of Questions -->
+    <ul class="list-group">
+        {% for question in questions %}
+            <li class="list-group-item">
+                <strong>{{ question.user.username }}</strong> ASKED:
+                <h5>{{ question.title }}</h5>
+                <p>{{ question.body }}</p>
+                <small class="text-muted">Posted on: {{ question.created_at }}</small>
+                <br>
+                <a href="{% url 'question_detail' question.id %}" class="btn btn-sm btn-success mt-3">View & Reply</a>
+                
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No questions yet. Be the first to ask! 😊</li>
+        {% endfor %}
+    </ul>
+    <br>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back</a>
+</div>
+<br>
+{% endblock %}
+

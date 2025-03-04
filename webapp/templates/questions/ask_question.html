@@ -1,0 +1,41 @@
+{% extends 'webapp/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Student Questions</h2>
+    
+    <!-- Form to Post a New Question -->
+    <form method="POST" action="{% url 'ask_question' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input type="text" name="title" id="title" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="body" class="form-label">Question Details:</label>
+            <textarea name="body" id="body" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Post Question</button>
+    </form>
+    
+    <hr>
+    
+    <!-- List of Questions -->
+    <ul class="list-group">
+        {% for question in questions %}
+            <li class="list-group-item">
+                <strong>{{ question.user.username }}</strong> asked:
+                <p>{{ question.body }}</p>  {# Ensure this matches the actual model field name #}
+                <small class="text-muted">Posted on: {{ question.created_at }}</small>
+                <br>
+                <a href="{% url 'question_detail' question.id %}" class="btn btn-sm btn-primary mt-2">View & Reply</a>
+                </li>
+        {% empty %}
+            <li class="list-group-item text-muted">No questions yet. Be the first to ask! 😊</li>
+        {% endfor %}
+    </ul>
+    <br>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back</a>
+    <br>
+</div>
+{% endblock %}

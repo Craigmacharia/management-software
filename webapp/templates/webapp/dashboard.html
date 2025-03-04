@@ -1,64 +1,71 @@
 {% extends 'webapp/base.html' %}
 
+
 {% block content %}
 
-<h5>Welcome, {{ user }}! 👋</h5>
+<h5>Karibu, {{ user }}! 👋</h5>
 <hr>
 
 {% if request.user.is_authenticated and request.user.is_superuser %}
-<a href="{% url 'create-record' %}" class="btn btn-primary">
-    Create new record &nbsp; <i class="fa fa-plus-circle" aria-hidden="true"></i>
-</a>
+    <a href="{% url 'create-record' %}" class="btn btn-primary">
+        Create new record &nbsp; <i class="fa fa-plus-circle"></i>
+    </a>
 {% else %}
-    <p>Here are the records and results of our students,</p>
+    <p>HERE IS YOUR PAGE, HAVE FUN & STUDY.</p>
 {% endif %}
-
-
+<hr>
 {% if request.user.is_authenticated and request.user.is_superuser %}
     <a href="{% url 'admin-dashboard' %}" class="btn btn-primary">Admin Dashboard</a>
 {% else %}
-    <p>As of 2025.</p>
+    <p>MURIMA SCHOOL.</p>
 {% endif %}
+
 <hr> 
+<a href="{% url 'ask_question' %}" class="btn btn-primary">Ask</a>
+<hr>
+<a href="{% url 'question_list' %}" class="btn btn-primary">Questions</a>
+<hr>
+<a href="{% url 'assignments' %}" class="btn btn-primary">Assignments</a>
+<hr>
 
 
-<div class="table-responsive">
-    <table class="table table-hover table-bordered table-striped">
-        <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>Student</th>
-            <th>Parent Email</th>
-            <th>Parent Phone</th>
-            <th>From</th>
-            <th>City</th>
-            <th>Index.no</th>
-            <th>Grade</th>
-            <th>Date Joined</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% if records %}
-            {% for record in records %}
-            <tr>
-                <td>{{ record.id }}</td>
-                <td>{{ record.first_name }} {{ record.last_name }}</td>
-                <td>{{ record.email }}</td>
-                <td>{{ record.phone }}</td>
-                <td>{{ record.address }}</td>
-                <td>{{ record.city }}</td>
-                <td>{{ record.province }}</td>
-                <td>{{ record.country }}</td>
-                <td>{{ record.creation_date }}</td>
-            </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td colspan="9" class="text-center">No records found.</td>
-            </tr>
-        {% endif %}
-    </tbody>
-</table>
+<button id="payNowBtn" class="btn btn-primary">
+    Lipa Na M-pesa <i class="fa fa-mobile"></i>
+</button>
+<hr>
+
+<script>
+    document.getElementById("payNowBtn").addEventListener("click", function() {
+        let phoneNumber = prompt("Enter your phone number (2547XXXXXXXX):");
+        let amount = prompt("Enter the amount to pay:");
+
+        if (phoneNumber && amount) {
+            fetch("{% url 'mpesa_pay' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    phone_number: phoneNumber,
+                    amount: amount
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Payment failed: " + data.error);
+                } else {
+                    alert("Payment request sent. Enter your MPESA PIN to confirm.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+</script>
+
+
+
 
 {% endblock %}
 
